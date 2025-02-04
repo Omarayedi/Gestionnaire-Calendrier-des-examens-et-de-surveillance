@@ -11,11 +11,15 @@ public class ExamStudent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer examStudentId;
 
-    @Column(nullable = false)
-    private Integer examId;
+    
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "exam_id") 
+    private Exam exam;
 
-    @Column(nullable = false)
-    private Integer studentId;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "student_id") 
+    private Student student;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -38,20 +42,20 @@ public class ExamStudent {
         this.examStudentId = examStudentId;
     }
 
-    public Integer getExamId() {
-        return examId;
+    public Exam getExam() {
+        return exam;
     }
 
-    public void setExamId(Integer examId) {
-        this.examId = examId;
+    public void setExam(Exam exam) {
+        this.exam = exam;
     }
 
-    public Integer getStudentId() {
-        return studentId;
+    public Student getStudent() {
+        return student;
     }
 
-    public void setStudentId(Integer studentId) {
-        this.studentId = studentId;
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
     public ExamStatus getStatus() {

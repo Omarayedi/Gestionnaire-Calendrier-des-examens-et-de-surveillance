@@ -11,14 +11,20 @@ public class Invigilator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer invigilatorId;
 
-    @Column(nullable = false)
-    private Integer userId;
 
-    @Column(nullable = false)
-    private Integer examId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id") 
+    private User user;
 
-    @Column(nullable = false)
-    private Integer roomId;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "exam_id") 
+    private Exam exam;
+
+    
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "room_id") 
+    private Room room;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -37,28 +43,28 @@ public class Invigilator {
         this.invigilatorId = invigilatorId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Integer getExamId() {
-        return examId;
+    public Exam getExam() {
+        return exam;
     }
 
-    public void setExamId(Integer examId) {
-        this.examId = examId;
+    public void setExam(Exam exam) {
+        this.exam = exam;
     }
 
-    public Integer getRoomId() {
-        return roomId;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setRoomId(Integer roomId) {
-        this.roomId = roomId;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public LocalDateTime getCreatedAt() {

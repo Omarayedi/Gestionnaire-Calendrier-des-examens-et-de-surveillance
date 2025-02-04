@@ -17,8 +17,10 @@ public class ScheduleLog {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false)
-    private Integer performedBy;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id") 
+    private User performedBy;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
@@ -53,11 +55,11 @@ public class ScheduleLog {
         this.description = description;
     }
 
-    public Integer getPerformedBy() {
+    public User getPerformedBy() {
         return performedBy;
     }
 
-    public void setPerformedBy(Integer performedBy) {
+    public void setPerformedBy(User performedBy) {
         this.performedBy = performedBy;
     }
 

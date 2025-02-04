@@ -11,8 +11,10 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer notificationId;
 
-    @Column(nullable = false)
-    private Integer userId; // Référence à l'utilisateur (FK)
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id") 
+    private User user; // Référence à l'utilisateur (FK)
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message; // Contenu de la notification
@@ -42,12 +44,12 @@ public class Notification {
         this.notificationId = notificationId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getMessage() {

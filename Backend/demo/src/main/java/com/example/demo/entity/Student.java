@@ -3,6 +3,9 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 @Entity
 @Table(name = "students")
 public class Student {
@@ -11,28 +14,20 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer studentId;
 
-    @Column(nullable = false, unique = true)
-    private Integer userId; // Référence à l'utilisateur (FK)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id")    
+    private User user; // Référence à l'utilisateur (FK)
 
     @Column(nullable = false, length = 100)
     private String program; // Programme ou filière
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     // Getters et Setters
     public Integer getStudentId() {
@@ -43,12 +38,12 @@ public class Student {
         this.studentId = studentId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUserId() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserId(User user) {
+        this.user = user;
     }
 
     public String getProgram() {

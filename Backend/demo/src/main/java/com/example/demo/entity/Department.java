@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "Department")
@@ -22,6 +23,11 @@ public class Department {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<User> users;
+    
+
 
     @PrePersist
     protected void onCreate() {

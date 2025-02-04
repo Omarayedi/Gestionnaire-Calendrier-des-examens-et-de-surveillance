@@ -16,8 +16,10 @@ public class Exam {
     @Column(nullable = false, length = 100)
     private String subject;
 
-    @Column(nullable = false)
-    private Integer departmentId; // FK vers department
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id") 
+    private Department department; // FK vers department
 
     @Column(nullable = false)
     private LocalDate examDate;
@@ -72,12 +74,12 @@ public class Exam {
         this.subject = subject;
     }
 
-    public Integer getDepartmentId() {
-        return departmentId;
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setDepartmentId(Integer departmentId) {
-        this.departmentId = departmentId;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public LocalDate getExamDate() {

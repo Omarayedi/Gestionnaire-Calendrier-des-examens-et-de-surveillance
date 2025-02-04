@@ -28,9 +28,9 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    @ManyToOne
-    @JoinColumn(name = "department_id", referencedColumnName = "departmentId")
-    private Department departmentId;  // Linked with Department Entity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")    
+    private Department department;  // Linked with Department Entity
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -88,11 +88,11 @@ public class User {
     }
 
     public Department getDepartment() {
-        return departmentId;
+        return department;
     }
 
     public void setDepartment(Department department) {
-        this.departmentId = department;
+        this.department = department;
     }
 
     public LocalDateTime getCreatedAt() {

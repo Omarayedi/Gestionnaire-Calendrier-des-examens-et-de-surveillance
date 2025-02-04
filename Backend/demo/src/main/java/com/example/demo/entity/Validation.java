@@ -11,11 +11,15 @@ public class Validation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer validationId;
 
-    @Column(nullable = false)
-    private Integer examId; // Référence à l'examen (FK)
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "exam_id") 
+    private Exam examId; // Référence à l'examen (FK)
 
-    @Column(nullable = false)
-    private Integer validatedBy; // Référence à l'utilisateur validant (FK)
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id") 
+    private User validatedBy; // Référence à l'utilisateur validant (FK)
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -41,19 +45,19 @@ public class Validation {
         this.validationId = validationId;
     }
 
-    public Integer getExamId() {
+    public Exam getExamId() {
         return examId;
     }
 
-    public void setExamId(Integer examId) {
+    public void setExamId(Exam examId) {
         this.examId = examId;
     }
 
-    public Integer getValidatedBy() {
+    public User getValidatedBy() {
         return validatedBy;
     }
 
-    public void setValidatedBy(Integer validatedBy) {
+    public void setValidatedBy(User validatedBy) {
         this.validatedBy = validatedBy;
     }
 

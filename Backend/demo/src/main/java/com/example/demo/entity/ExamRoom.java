@@ -11,11 +11,14 @@ public class ExamRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer examRoomId;
 
-    @Column(nullable = false)
-    private Integer examId; // Référence à l'examen (FK)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "exam_id") 
+    private Exam exam; // Référence à l'examen (FK)
 
-    @Column(nullable = false)
-    private Integer roomId; // Référence à la salle (FK)
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "room_id") 
+    private Room room; // Référence à la salle (FK)
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -34,20 +37,20 @@ public class ExamRoom {
         this.examRoomId = examRoomId;
     }
 
-    public Integer getExamId() {
-        return examId;
+    public Exam getExam() {
+        return exam;
     }
 
-    public void setExamId(Integer examId) {
-        this.examId = examId;
+    public void setExam(Exam exam) {
+        this.exam = exam;
     }
 
-    public Integer getRoomId() {
-        return roomId;
+    public Room getRoom() {
+        return room;
     }
 
-    public void setRoomId(Integer roomId) {
-        this.roomId = roomId;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     public LocalDateTime getCreatedAt() {
