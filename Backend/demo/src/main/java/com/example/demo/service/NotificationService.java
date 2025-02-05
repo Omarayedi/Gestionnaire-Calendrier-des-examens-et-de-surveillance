@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entity.Notification;
 import com.example.demo.entity.NotificationStatus;
+import com.example.demo.entity.User;
 import com.example.demo.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,8 @@ public class NotificationService {
         return notificationRepository.findById(id);
     }
 
-    public List<Notification> getNotificationsByUserId(Integer userId) {
-        return notificationRepository.findByUserId(userId);
+    public List<Notification> getNotificationsByUserId(User userId) {
+        return notificationRepository.findByUser(userId);
     }
 
     public List<Notification> getNotificationsByStatus(NotificationStatus status) {
@@ -39,7 +40,7 @@ public class NotificationService {
 
     public Notification updateNotification(Integer id, Notification notificationDetails) {
         return notificationRepository.findById(id).map(notification -> {
-            notification.setUserId(notificationDetails.getUserId());
+            notification.setUser(notificationDetails.getUser());
             notification.setMessage(notificationDetails.getMessage());
             notification.setStatus(notificationDetails.getStatus());
             notification.setNotificationType(notificationDetails.getNotificationType());

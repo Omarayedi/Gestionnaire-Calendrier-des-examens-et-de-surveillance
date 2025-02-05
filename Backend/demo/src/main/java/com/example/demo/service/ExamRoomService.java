@@ -30,8 +30,8 @@ public class ExamRoomService {
 
     public ExamRoom updateExamRoom(Integer id, ExamRoom examRoomDetails) {
         return examRoomRepository.findById(id).map(examRoom -> {
-            examRoom.setExamId(examRoomDetails.getExamId());
-            examRoom.setRoomId(examRoomDetails.getRoomId());
+            examRoom.setExam(examRoomDetails.getExam());
+            examRoom.setRoom(examRoomDetails.getRoom());
             return examRoomRepository.save(examRoom);
         }).orElseThrow(() -> new RuntimeException("Exam Room not found"));
     }

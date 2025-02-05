@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Notification;
 import com.example.demo.entity.NotificationStatus;
+import com.example.demo.entity.User;
 import com.example.demo.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<Notification> getNotificationsByUserId(@PathVariable Integer userId) {
+    public List<Notification> getNotificationsByUserId(@PathVariable User userId) {
         return notificationService.getNotificationsByUserId(userId);
     }
 

@@ -4,11 +4,9 @@ import com.example.demo.entity.Department;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,22 +14,21 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
     
-    public User registerUser(String name,String email,String password, Role role,Department department ){
-        if(userRepository.findByEmail(email).isPresent()){
-            throw new RuntimeException("Email already exisits!");
+    public User registerUser(String name, String email, String password, Role role, Department department) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("Email already exists!");
         }
-        User user=new User();
+        User user = new User();
         user.setName(name);
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));//hash password
+        user.setPassword(passwordEncoder.encode(password)); // Hash password
         user.setRole(role);
         user.setDepartment(department);
         return userRepository.save(user);
@@ -40,7 +37,8 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-    public Optional<User> getUserByEmail(String email){
+
+    public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
@@ -56,7 +54,7 @@ public class UserService {
         return userRepository.findById(id).map(user -> {
             user.setName(userDetails.getName());
             user.setEmail(userDetails.getEmail());
-            user.setPassword(userDetails.getPassword()); // Make sure to hash it
+            user.setPassword(passwordEncoder.encode(userDetails.getPassword())); // Hash password
             user.setRole(userDetails.getRole());
             user.setDepartment(userDetails.getDepartment());
             user.setIsActive(userDetails.getIsActive());
@@ -64,7 +62,12 @@ public class UserService {
         }).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public void deleteUser(Integer id) {
-        userRepository.deleteById(id);
+    public boolean deleteUser(Integer id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        } else {
+            throw new RuntimeException("User not found");
+        }
     }
 }

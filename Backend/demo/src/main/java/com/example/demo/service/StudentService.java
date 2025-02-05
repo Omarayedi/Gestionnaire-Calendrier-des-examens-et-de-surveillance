@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Student;
+import com.example.demo.entity.User;
 import com.example.demo.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,8 @@ public class StudentService {
         return studentRepository.findById(id);
     }
 
-    public Optional<Student> getStudentByUserId(Integer userId) {
-        return studentRepository.findByUserId(userId);
+    public Optional<Student> getStudentByUserId(User userId) {
+        return studentRepository.findByUser(userId);
     }
 
     public Student createStudent(Student student) {

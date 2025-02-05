@@ -31,7 +31,7 @@ public class ExamService {
     public Exam updateExam(Integer id, Exam examDetails) {
         return examRepository.findById(id).map(exam -> {
             exam.setSubject(examDetails.getSubject());
-            exam.setDepartmentId(examDetails.getDepartmentId());
+            exam.setDepartment(examDetails.getDepartment());
             exam.setExamDate(examDetails.getExamDate());
             exam.setStartTime(examDetails.getStartTime());
             exam.setEndTime(examDetails.getEndTime());

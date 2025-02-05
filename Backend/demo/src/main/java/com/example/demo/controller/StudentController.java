@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Student;
+import com.example.demo.entity.User;
 import com.example.demo.service.StudentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class StudentController {
     }
 
     @GetMapping("/user/{userId}")
-    public Optional<Student> getStudentByUserId(@PathVariable Integer userId) {
+    public Optional<Student> getStudentByUserId(@PathVariable User userId) {
         return studentService.getStudentByUserId(userId);
     }
 
