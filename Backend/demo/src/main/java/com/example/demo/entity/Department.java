@@ -15,8 +15,9 @@ public class Department {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false)
-    private Integer headId;
+    @ManyToOne
+    @JoinColumn(name = "head_Id", nullable = true)
+    private User head; 
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -57,12 +58,12 @@ public class Department {
         this.name = name;
     }
 
-    public Integer getHeadId() {
-        return headId;
+    public User getHead() {
+        return head;
     }
 
-    public void setHeadId(Integer headId) {
-        this.headId = headId;
+    public void setHead(User headId) {
+        this.head = headId;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.dto.AuthenticationResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.entity.User;
 import com.example.demo.security.JwtUtil;

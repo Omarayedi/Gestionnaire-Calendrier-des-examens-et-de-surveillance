@@ -27,7 +27,8 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()  // Allow login & register 
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                .requestMatchers("/api/admin/**").hasAuthority("ADMIN") // Allow login & register 
                 .anyRequest().authenticated()  // All others require authentication
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless (JWT-based)
@@ -36,8 +37,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
-
-
 }
