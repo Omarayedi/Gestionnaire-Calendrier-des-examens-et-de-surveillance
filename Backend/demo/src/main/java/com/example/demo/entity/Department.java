@@ -4,8 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+
+
 @Entity
 @Table(name = "Department")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Department {
 
     @Id
@@ -15,7 +20,7 @@ public class Department {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "head_Id", nullable = true)
     private User head; 
 

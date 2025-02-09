@@ -3,21 +3,25 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "exam_rooms")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ExamRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer examRoomId;
 
+    
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "exam_id") 
     private Exam exam; // Référence à l'examen (FK)
 
     
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "room_id") 
+    @JoinColumn(name = "room_id")
     private Room room; // Référence à la salle (FK)
 
     @Column(nullable = false, updatable = false)
@@ -56,4 +60,11 @@ public class ExamRoom {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+    @Override
+public String toString() {
+    return "ExamRoom{" +
+            "examRoomId=" + examRoomId +
+            ", createdAt=" + createdAt +
+            '}';
+}
 }

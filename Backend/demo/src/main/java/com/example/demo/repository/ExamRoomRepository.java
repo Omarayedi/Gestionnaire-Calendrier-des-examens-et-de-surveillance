@@ -11,4 +11,5 @@ import java.util.List;
 public interface ExamRoomRepository extends JpaRepository<ExamRoom, Integer> {
     List<ExamRoom> findByExam(Exam exam);
     List<ExamRoom> findByRoom(Room room);
+    Boolean existsByExam(Exam exam);
 }

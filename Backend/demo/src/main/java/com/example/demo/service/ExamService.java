@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Exam;
-import com.example.demo.entity.User;
 import com.example.demo.repository.DepartmentRepository;
 import com.example.demo.repository.ExamRepository;
 

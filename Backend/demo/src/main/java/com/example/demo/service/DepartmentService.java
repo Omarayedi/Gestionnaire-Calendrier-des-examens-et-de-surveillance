@@ -38,6 +38,11 @@ public class DepartmentService {
         User head = userRepository.findByUserId(headId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + headId));
     
+        // Check if the user is eligible to be a department head
+        if (!head.getRole().equals("CHEF")) { 
+            throw new IllegalArgumentException("User with role " + head.getRole() + " cannot be assigned as the department head. A department head must have the role 'CHEF'.");
+        }
+    
         // Assign the head to the department
         department.setHead(head);
     
@@ -45,23 +50,35 @@ public class DepartmentService {
     }
     
 
+    @Transactional
     public Department updateDepartment(Long id, Department updatedDepartment) {
         // Fetch the existing department
         Department existingDepartment = departmentRepository.findByDepartmentId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Department not found with id " + id));
-
-        // Update fields
+    
+        // Update the department name
         existingDepartment.setName(updatedDepartment.getName());
-
+    
         // Handle head update
         if (updatedDepartment.getHead() != null && updatedDepartment.getHead().getUserId() != null) {
-            User head = userRepository.findByUserId(updatedDepartment.getHead().getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with id " + updatedDepartment.getHead().getUserId()));
+            long headId = updatedDepartment.getHead().getUserId();
+            
+            User head = userRepository.findByUserId(headId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with id " + headId));
+    
+            // Validate if the user is eligible to be a department head
+            if (!head.getRole().equals("CHEF")) {
+                throw new IllegalArgumentException("User with role " + head.getRole() + " cannot be assigned as the department head. A department head must have the role 'CHEF'.");
+            }
+    
             existingDepartment.setHead(head);
         } else {
             existingDepartment.setHead(null); // Allow removing the head if set to null
         }
-
+    
         return departmentRepository.save(existingDepartment);
+    }
+    public void deleteDepartment(Integer id) {
+        departmentRepository.deleteById(id);
     }
 }

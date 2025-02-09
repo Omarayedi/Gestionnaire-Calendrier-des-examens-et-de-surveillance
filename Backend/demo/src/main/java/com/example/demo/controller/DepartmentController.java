@@ -52,4 +52,8 @@ public class DepartmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update department.");
         }
     }
+    @DeleteMapping("/{id}")
+    public void deleteDepartment(@PathVariable Integer id) {
+        departmentService.deleteDepartment(id);
+    }
 }

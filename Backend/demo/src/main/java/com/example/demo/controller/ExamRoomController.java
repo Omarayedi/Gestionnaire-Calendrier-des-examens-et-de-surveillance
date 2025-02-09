@@ -29,7 +29,7 @@ public class ExamRoomController {
 
     @GetMapping("/{id}")
     public Optional<ExamRoom> getExamRoomById(@PathVariable Integer id) {
-        return examRoomService.getExamRoomById(id);
+        return Optional.of(examRoomService.getExamRoomById(id));
     }
 
 
@@ -49,19 +49,15 @@ public class ExamRoomController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateExamRoom(@PathVariable int id, @RequestBody ExamRoom examRoomDetails) {
         try {
-            ExamRoom updatedExamRoom = examRoomService.updateExamRoom(id, examRoomDetails);
-            if (updatedExamRoom == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Exam room not found with id: " + id);
-            }
-            return ResponseEntity.ok(updatedExamRoom);
+            return ResponseEntity.ok(examRoomService.updateExamRoom(id, examRoomDetails));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update exam room.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Exam room not found with id: " + id);
         }
     }
-
-
+    
     @DeleteMapping("/{id}")
     public void deleteExamRoom(@PathVariable Integer id) {
         examRoomService.deleteExamRoom(id);

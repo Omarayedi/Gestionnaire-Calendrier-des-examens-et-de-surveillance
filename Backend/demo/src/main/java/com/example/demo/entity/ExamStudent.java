@@ -12,7 +12,7 @@ public class ExamStudent {
     private Integer examStudentId;
 
     
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "exam_id") 
     private Exam exam;
 
