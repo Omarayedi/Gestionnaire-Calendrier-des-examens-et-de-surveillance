@@ -42,8 +42,8 @@ public class Student {
         return user;
     }
 
-    public void setUserId(User user) {
-        this.user = user;
+    public void setUserId(User user1) {
+        this.user = user1;
     }
 
     public String getProgram() {

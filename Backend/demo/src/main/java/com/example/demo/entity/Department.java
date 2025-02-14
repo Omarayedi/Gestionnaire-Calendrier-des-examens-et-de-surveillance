@@ -4,8 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+
+
 @Entity
 @Table(name = "Department")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Department {
 
     @Id
@@ -15,8 +20,9 @@ public class Department {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false)
-    private Integer headId;
+    @OneToOne
+    @JoinColumn(name = "head_Id", nullable = true)
+    private User head; 
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -57,12 +63,12 @@ public class Department {
         this.name = name;
     }
 
-    public Integer getHeadId() {
-        return headId;
+    public User getHead() {
+        return head;
     }
 
-    public void setHeadId(Integer headId) {
-        this.headId = headId;
+    public void setHead(User headId) {
+        this.head = headId;
     }
 
     public LocalDateTime getCreatedAt() {
