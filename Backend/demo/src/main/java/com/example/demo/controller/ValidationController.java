@@ -5,20 +5,23 @@ import com.example.demo.entity.User;
 import com.example.demo.entity.Validation;
 import com.example.demo.entity.ValidationStatus;
 import com.example.demo.service.ValidationService;
-import org.springframework.web.bind.annotation.*;
 
+import lombok.AllArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/validations")
+@AllArgsConstructor
 public class ValidationController {
+
 
     private final ValidationService validationService;
 
-    public ValidationController(ValidationService validationService) {
-        this.validationService = validationService;
-    }
 
     @GetMapping
     public List<Validation> getAllValidations() {
@@ -46,14 +49,27 @@ public class ValidationController {
     }
 
     @PostMapping
-    public Validation createValidation(@RequestBody Validation validation) {
-        return validationService.createValidation(validation);
-    }
+    public ResponseEntity<?> createValidation(@RequestBody Validation invigilator) {
+        try {
+            Validation savedInvigilator = validationService.createValidation(invigilator);
+            return new ResponseEntity<>(savedInvigilator, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }   
 
     @PutMapping("/{id}")
-    public Validation updateValidation(@PathVariable Integer id, @RequestBody Validation validationDetails) {
-        return validationService.updateValidation(id, validationDetails);
+    public ResponseEntity<?> updateValidation(@PathVariable Integer id, @RequestBody Validation validation) {
+        try {
+            Validation updatedValidation = validationService.updateValidation(id, validation);
+            return ResponseEntity.ok(updatedValidation);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating validation.");
+        }
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteValidation(@PathVariable Long id) {

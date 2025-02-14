@@ -3,8 +3,11 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "exam_students")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ExamStudent {
 
     @Id
