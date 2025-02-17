@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.service.DepartmentService;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/admin/departments")
+@RequestMapping("/api")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
@@ -20,12 +21,13 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
-    @GetMapping
-    public List<Department> getAllDepartments() {
-        return departmentService.getAllDepartments();
+    @GetMapping("/department")
+    public ResponseEntity<List<DepartmentDTO>> getAllDepartments() {
+        List<DepartmentDTO> departments = departmentService.getAllDepartments();
+        return ResponseEntity.ok(departments);
     }
 
-    @PostMapping
+    @PostMapping("/admin/department")
     public ResponseEntity<?> createDepartment(@RequestBody Department department) {
         try {
             Department savedDepartment = departmentService.createDepartment(department);
@@ -37,7 +39,7 @@ public class DepartmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create department.");
         }
     }
-    @PutMapping("/{id}")
+    @PutMapping("/admin/department/{id}")
     public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody Department department) {
         try {
             Department updatedDepartment = departmentService.updateDepartment(id, department);
@@ -52,7 +54,7 @@ public class DepartmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update department.");
         }
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/department/{id}")
     public void deleteDepartment(@PathVariable Integer id) {
         departmentService.deleteDepartment(id);
     }

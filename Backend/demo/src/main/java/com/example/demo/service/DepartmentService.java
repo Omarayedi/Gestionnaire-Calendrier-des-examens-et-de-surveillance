@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.DepartmentDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.User;
 import com.example.demo.repository.DepartmentRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
@@ -22,8 +24,11 @@ public class DepartmentService {
         this.departmentRepository = departmentRepository;
     }
 
-    public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+    public List<DepartmentDTO> getAllDepartments() {
+        return departmentRepository.findAll()
+            .stream()
+            .map(dept -> new DepartmentDTO(dept.getDepartmentId(), dept.getName()))
+            .collect(Collectors.toList());
     }
 
     @Transactional
