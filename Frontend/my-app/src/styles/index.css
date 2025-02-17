@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@keyframes wave {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 0; }
+  }
+  
+  .bg-wave {
+    background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+    animation: wave 10s infinite linear;
+  }
+  
