@@ -31,11 +31,12 @@ public class StudentService {
 
     public Student createStudent(Student student) {
         return studentRepository.save(student);
+        
     }
 
     public Student updateStudent(Integer id, Student studentDetails) {
         return studentRepository.findById(id).map(student -> {
-            student.setUser(studentDetails.getUser());
+            student.setUserId(studentDetails.getUser());
             student.setProgram(studentDetails.getProgram());
             return studentRepository.save(student);
         }).orElseThrow(() -> new RuntimeException("Student not found"));
