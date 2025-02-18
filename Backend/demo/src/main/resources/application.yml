@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/dbisimm?useSSL=false&serverTimezone=UTC
     username: root # Replace with your MySQL username
-    password: kiraomarL # Replace with your MySQL password
+    password: boussetta1234 # Replace with your MySQL password
   session:
     jdbc:
       initialize-schema: always
