@@ -1,10 +1,13 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "validations")
+@NoArgsConstructor
 public class Validation {
 
     @Id

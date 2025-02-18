@@ -3,7 +3,6 @@ package com.example.demo.security;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +23,10 @@ public class JwtUtil {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+    public String extractRole(String token){
+            return extractAllClaims(token).get("role", String.class);
 
+    }
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -33,6 +35,7 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
         .setSubject(userDetails.getUsername())
+        .claim("role",((User) userDetails).getRole().name())
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours
         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -44,6 +47,7 @@ public class JwtUtil {
         return Jwts.builder()
             .setClaims(extraClaims)
             .setSubject(userDetails.getUsername())
+            .claim("role",((User) userDetails).getRole().name())
             .setIssuedAt(new Date(System.currentTimeMillis()))
             .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours
             .signWith(getSignInKey(), SignatureAlgorithm.HS256)

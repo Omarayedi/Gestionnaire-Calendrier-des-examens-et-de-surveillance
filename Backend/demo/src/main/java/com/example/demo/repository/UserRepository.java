@@ -21,4 +21,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     return countByRoleAndDepartment(role, department) > 0;
     }
 
+    Optional<User> findByUserId(long id);
+    Optional<User> findByDepartment(Department department);
+    User findByRole(Role directeur);
 }
