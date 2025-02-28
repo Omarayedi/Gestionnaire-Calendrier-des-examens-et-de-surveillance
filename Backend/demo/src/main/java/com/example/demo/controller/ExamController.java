@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.DepartmentDTO;
+import com.example.demo.dto.ExamDTO;
 import com.example.demo.entity.Exam;
 import com.example.demo.service.ExamService;
 
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/exams")
@@ -21,8 +24,9 @@ public class ExamController {
     }
 
     @GetMapping
-    public List<Exam> getAllExams() {
-        return examService.getAllExams();
+    public ResponseEntity<List<ExamDTO>> getAllExams() {
+        List<ExamDTO> exams = examService.getAllExams();
+        return ResponseEntity.ok(exams);
     }
 
     @GetMapping("/{id}")
@@ -34,7 +38,7 @@ public class ExamController {
     public ResponseEntity<?> createExam(@RequestBody Exam exam) {
         try {
             Exam createdExam = examService.createExam(exam);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdExam);
+            return ResponseEntity.ok("Exam " +createdExam.getSubject()+ " created successfully.");
         }catch (IllegalArgumentException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -59,7 +63,13 @@ public class ExamController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteExam(@PathVariable Integer id) {
-        examService.deleteExam(id);
+    public ResponseEntity<?> deleteExam(@PathVariable Integer id) {
+        try {
+            examService.deleteExam(id);
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting exam");
+        }
     }
+
 }

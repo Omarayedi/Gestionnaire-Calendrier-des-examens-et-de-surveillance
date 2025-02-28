@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.DepartmentDTO;
+import com.example.demo.dto.ExamDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Exam;
 import com.example.demo.entity.ExamRoom;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -47,8 +50,11 @@ public class ExamService {
 
 
 
-    public List<Exam> getAllExams() {
-        return examRepository.findAll();
+    public List<ExamDTO> getAllExams() {
+        return examRepository.findAll()
+            .stream()
+            .map(exam -> new ExamDTO(exam.getExamId(), exam.getSubject(), exam.getDepartment().getName(), exam.getExamDate(), exam.getStartTime(), exam.getEndTime(), exam.getDifficulty(), exam.getCoefficient()))
+            .collect(Collectors.toList());
     }
 
     public Optional<Exam> getExamById(Integer id) {
@@ -141,7 +147,6 @@ public class ExamService {
         if (!invigilators.isEmpty()) {
             invigilatorRepository.deleteAll(invigilators);
         }
-
         // Now delete the exam
         examRepository.delete(exam);
     }

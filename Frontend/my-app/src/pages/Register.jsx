@@ -29,7 +29,6 @@ export default function Register() {
         console.error("Failed to fetch departments", error);
       }
     };
-    
     fetchDepartments();
   }, []);
 
@@ -46,7 +45,7 @@ export default function Register() {
         email,
         password,
         role,
-        department: { departmentId: parseInt(department) },
+        department,
       });
   
       alert("Account created successfully! Please login.");
@@ -114,12 +113,11 @@ export default function Register() {
             >
               <option value="">Select a department</option>
               {departments.map((dept) => (
-                <option key={dept.departmentId} value={dept.departmentId}>
+                <option key={dept.departmentId} value={dept.name}>
                   {dept.name}
                 </option>
               ))}
             </select>
-
           </div>
 
           {/* Submit Button */}
