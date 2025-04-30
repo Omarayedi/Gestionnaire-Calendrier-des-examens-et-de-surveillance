@@ -1,0 +1,7 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3); /* Semi-transparent dark overlay */
+    backdrop-filter: blur(5px); /* Blurry effect */
+    z-index: 50; /* Ensure it's above other content */
+  }

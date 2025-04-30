@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, CheckCircle, XCircle, Clock, Award, Building, TrendingUp } from 'lucide-react';
 import axios from 'axios';
+import "../styles/popup.css";
+
 
 export function ExamForm({ exam, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -149,7 +151,7 @@ const handleSubmit = async (e) => {
 
   return (
     // Modal Backdrop
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-400/10 backdrop-blur-md">
+    <div className="backdrop fixed inset-0 flex items-center justify-center">
 
     {/* Modal Content */}
       <div className="bg-red rounded-lg shadow-xl w-full max-w-3xl relative">

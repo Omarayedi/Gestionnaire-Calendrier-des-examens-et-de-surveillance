@@ -5,6 +5,8 @@ import {
   Bookmark, Award, MoreHorizontal, RefreshCcw, ArrowUpDown, Info
 } from 'lucide-react';
 import axios from 'axios';
+import "../styles/popup.css";
+
 
 export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,8 +14,8 @@ export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew })
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'asc' });
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-  const [exam, setExam] = useState([]);
-
+  const [showPopup, setShowPopup] = useState(false);
+  const [examToDelete, setExamToDelete] = useState(null);
   const [visibleColumns, setVisibleColumns] = useState({
     subject: true,
     department: true,
@@ -82,7 +84,7 @@ export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew })
         setIsFilterExpanded(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -135,6 +137,18 @@ export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew })
     }));
   };
 
+  const handleDeleteExam = (examId) => {
+    setExamToDelete(examId);
+    setShowPopup(true);
+  };
+
+  const confirmDelete = () => {
+    if (examToDelete !== null) {
+      removeExam(examToDelete);
+      setShowPopup(false);
+      setExamToDelete(null);
+    }
+  };
   // Get counts for status badges
   const getStatusCounts = useMemo(() => {
     return exams.reduce((acc, exam) => {
@@ -395,7 +409,7 @@ export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew })
                           <Copy className="h-4.5 w-4.5" />
                         </button>
                         <button 
-                          onClick={() => onDelete(exam.id)} 
+                          onClick={() => handleDeleteExam(exam.id)} 
                           className="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-100 rounded-md transition-colors" 
                           title="Delete"
                         >
@@ -432,6 +446,7 @@ export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew })
             )}
           </tbody>
         </table>
+
       </div>
 
       {/* Footer */}
@@ -459,6 +474,47 @@ export function ExamTable({ exams, onEdit, onDuplicate, onDelete, onCreateNew })
           </div>
         </div>
       )}
+            {showPopup && (
+      <div className="backdrop fixed inset-0 flex items-center justify-center">
+        <div className="group select-none w-[300px] flex flex-col p-6 bg-gray-800 border border-gray-800 shadow-lg rounded-2xl text-center relative z-50">
+          <svg
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            className="group-hover:animate-bounce w-12 h-12 text-red-500 mx-auto"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clipRule="evenodd"
+              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+              fillRule="evenodd"
+            ></path>
+          </svg>
+          <h2 className="text-xl font-bold py-4 text-gray-200">Are you sure?</h2>
+          <p className="text-sm text-gray-400 px-2">
+            Do you really want to delete this exam? This action cannot be undone.
+          </p>
+          <div className="flex justify-center mt-4 space-x-4">
+            <button
+              onClick={() => setShowPopup(false)}
+              className="px-5 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-full hover:bg-gray-800 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                onDelete(examToDelete);
+                setShowPopup(false);
+                setExamToDelete(null);
+              }}
+              className="px-5 py-2 bg-red-500 text-white border border-red-500 rounded-full hover:bg-transparent hover:text-red-500 transition"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+) }   
     </div>
+    
   );
 }

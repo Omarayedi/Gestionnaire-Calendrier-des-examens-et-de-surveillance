@@ -148,9 +148,7 @@ const calculateDuration = (startTime, endTime) => {
   };
 
   const handleDeleteExam = (examId) => {
-    if (window.confirm('Are you sure you want to delete this exam?')) {
       removeExam(examId);
-    }
   };
 
   // Add drag and drop functionality
@@ -273,13 +271,7 @@ const calculateDuration = (startTime, endTime) => {
 
         {/* Form section */}
         {isFormOpen && (
-          <div className="mb-8 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 animate-in fade-in duration-300">
-            <div className="px-6 py-4 bg-indigo-50 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800">
-                {editingExam ? 'Edit Exam' : 'Create New Exam'}
-              </h2>
-            </div>
-            <div className="p-6">
+          <div className="mb-8">
               <ExamForm
                 exam={editingExam}
                 onSubmit={editingExam ? handleEditExam : handleAddExam}
@@ -288,7 +280,6 @@ const calculateDuration = (startTime, endTime) => {
                   setEditingExam(undefined);
                 }}
               />
-            </div>
           </div>
         )}
 
