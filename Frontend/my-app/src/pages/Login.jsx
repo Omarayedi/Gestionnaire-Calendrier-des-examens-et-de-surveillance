@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaUser, FaLock, FaGoogle, FaMicrosoft, FaSun, FaMoon } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,9 +15,30 @@ export default function Login() {
     e.preventDefault();
     try {
       const response = await axios.post("http://localhost:8000/api/auth/login", { email, password });
-      localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+
+      // Decode the token to extract the role
+      const decodedToken = jwtDecode(token);
+      const role = decodedToken.role; // Extract role from the token
+
+      localStorage.setItem("role", role); // Store role
+       // Redirection en fonction du rôle
+      switch (role) {
+        case "ADMIN":
+          navigate("/dashboard/admin");
+          break;
+        case "DIRECTEUR":
+          navigate("/dashboard/directeur");
+          break;
+        case "CHEF":
+          navigate("/dashboard/chef");
+          break;
+        default:
+          alert("Rôle non reconnu !");
+        }
     } catch (error) {
+      alert(response.data.role);
       alert("Invalid credentials");
     }
   };

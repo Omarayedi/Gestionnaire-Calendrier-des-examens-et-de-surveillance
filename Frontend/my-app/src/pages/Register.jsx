@@ -29,6 +29,7 @@ export default function Register() {
         console.error("Failed to fetch departments", error);
       }
     };
+    
     fetchDepartments();
   }, []);
 
@@ -118,6 +119,7 @@ export default function Register() {
                 </option>
               ))}
             </select>
+
           </div>
 
           {/* Submit Button */}

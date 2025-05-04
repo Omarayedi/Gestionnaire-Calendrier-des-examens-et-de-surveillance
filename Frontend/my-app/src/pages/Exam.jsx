@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, GraduationCap, Calendar, AlertCircle, X, Bookmark, BookOpen, Check, Sidebar } from 'lucide-react';
+import { Plus,FileText, GraduationCap, Calendar,Users,Menu,Bell, AlertCircle, X, Bookmark, Check,MapPin, Home,BookOpen,Sidebar ,Settings,ClipboardList,User } from 'lucide-react';
 import { ExamTable } from '../components/ExamTable';
 import { ExamForm } from '../components/ExamForm';
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 
@@ -9,8 +10,11 @@ function AddExam() {
   const [exams, setExams] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingExam, setEditingExam] = useState(undefined);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [notification, setNotification] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const navigate = useNavigate();
+  
   const [stats, setStats] = useState({
     total: 0,
     draft: 0,
@@ -82,7 +86,17 @@ function AddExam() {
     setExams(prev => prev.filter(exam => exam.id !== examId));
     showNotification('Exam deleted successfully!', 'warning');
   };
-  
+  const sidebarItems = [
+    { icon: Home, label: 'Dashboard', path: '/dashboard/admin/'},
+    { icon: BookOpen, label: 'Exams', path: '/dashboard/admin/exams' , active: true },
+    { icon: Calendar, label: 'Schedule', path: '/schedule' },
+    { icon: Users, label: 'Supervisors', path: '/dashboard/admin/supervisors' },
+    { icon: MapPin, label: 'Rooms', path: '/dashboard/admin/rooms' },
+    { icon: FileText, label: 'Reports', path: '/reports' },
+    { icon: ClipboardList, label: 'Validations', path: '/validations' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
+  ];
+
 
 
   const removeSeconds = (time) => time ? time.slice(0, 5) : ""; 
@@ -178,7 +192,76 @@ const calculateDuration = (startTime, endTime) => {
 
   return (
     
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 pb-12">
+    <div className="flex h-screen bg-gray-100">
+{/* Sidebar */}
+<aside
+  className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform transition-all duration-300 ease-in-out ${
+    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+  } lg:translate-x-0 lg:static lg:inset-0 border-r border-gray-200`}
+  aria-hidden={!isSidebarOpen}
+>
+  {/* Header */}
+  <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+    <div className="flex items-center">
+      <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center mr-3">
+        <ClipboardList className="w-5 h-5 text-white" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-800">Exam Admin</h2>
+    </div>
+    <button
+      onClick={() => setSidebarOpen(false)}
+      className="p-2 rounded-md lg:hidden hover:bg-gray-100 transition-colors"
+      aria-label="Close sidebar"
+    >
+      <X className="w-5 h-5 text-gray-600" />
+    </button>
+  </div>
+
+  {/* Navigation */}
+  <nav className="mt-6 px-4" aria-label="Main Navigation">
+    <ul className="space-y-1">
+      {sidebarItems.map((item, index) => (
+        <li key={index}>
+          <button
+            onClick={() => navigate(item.path)}
+            className={`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 ${
+              item.active
+                ? "bg-blue-50 text-blue-700 font-medium shadow-sm"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+            aria-current={item.active ? "page" : undefined}
+          >
+            <item.icon className={`w-5 h-5 mr-3 ${item.active ? "text-blue-600" : "text-gray-500"}`} />
+            <span className={item.active ? "font-medium" : ""}>{item.label}</span>
+            {item.active && (
+              <div className="ml-auto bg-blue-600 w-1.5 h-5 rounded-full" />
+            )}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  {/* Footer */}
+  <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+    <div className="flex items-center space-x-3 px-2">
+      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+        <User className="w-4 h-4 text-gray-600" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-900 truncate">Admin User</p>
+        <p className="text-xs text-gray-500 truncate">admin@example.com</p>
+      </div>
+      <button 
+        className="p-1.5 rounded-full hover:bg-gray-100"
+        aria-label="User settings"
+      >
+        <Settings className="w-4 h-4 text-gray-500" />
+      </button>
+    </div>
+  </div>
+</aside>
+
       {/* Notification toast */}
       {notification && (
         <div className={`fixed top-4 right-4 z-50 flex items-center px-4 py-3 rounded-lg shadow-lg transition-all duration-300 ${
@@ -199,22 +282,33 @@ const calculateDuration = (startTime, endTime) => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header section */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center space-x-3 mb-4 sm:mb-0">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <GraduationCap className="h-8 w-8 text-indigo-600" />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+        {/* Header */}
+        <header className="bg-white shadow-md">
+          <div className="px-4 py-6">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-md lg:hidden hover:bg-gray-100">
+                  <Menu className="w-6 h-6 text-gray-600" />
+                </button>
+                  <div className="h-12 w-12 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                    <FileText className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Exam Management</h1>
+                    <p className="text-muted-foreground">Create and manage you examination schedule</p>
+                  </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Exam Management</h1>
-                <p className="text-gray-500 mt-1">Create and manage your examination schedule</p>
+              <div className="flex items-center space-x-4">
+                <button onClick={() => showNotification(!showNotification)} className="p-2 rounded-full hover:bg-gray-100">
+                  <Bell className="h-6 w-6 text-gray-600" />
+                </button>
               </div>
             </div>
-            
           </div>
-        </div>
+        </header>
+        <main className="flex-1 overflow-y-auto bg-gray-100 px-4 py-6">
 
         {/* Stats cards */}
         {exams.length > 0 && (
@@ -359,6 +453,7 @@ const calculateDuration = (startTime, endTime) => {
             )}
           </div>
         )}
+              </main>
       </div>
     </div>
   );

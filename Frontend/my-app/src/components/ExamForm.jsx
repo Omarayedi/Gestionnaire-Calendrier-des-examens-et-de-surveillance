@@ -128,9 +128,6 @@ const handleSubmit = async (e) => {
     }
 };
 
-
-  
-
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
