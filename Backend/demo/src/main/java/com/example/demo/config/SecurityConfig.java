@@ -27,7 +27,7 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/register","/api/department").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register","/api/departments").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN") // Allow login & register 
                 .anyRequest().authenticated()  // All others require authentication
             )

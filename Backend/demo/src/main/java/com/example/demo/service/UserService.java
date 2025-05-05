@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
@@ -102,6 +103,11 @@ public class UserService {
     public User createUser(User user) {
         return userRepository.save(user);
     }
+
+    public List<UserDTO> getAllSupervisors() {
+        return userRepository.findAllByRole(Role.ENSEIGNANT);
+    }
+    
 
     public User updateUser(Integer id, User userDetails) {
         return userRepository.findById(id).map(user -> {

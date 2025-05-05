@@ -18,7 +18,7 @@ export default function Register() {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/department");
+        const response = await axios.get("http://localhost:8000/api/departments");
         if (Array.isArray(response.data)) {
           setDepartments(response.data); // Set only if it's an array
         } else {

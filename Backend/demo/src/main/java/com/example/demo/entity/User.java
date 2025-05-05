@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,8 @@ public class User implements UserDetails {
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")    
+    @JoinColumn(name = "department_id") 
+    @JsonBackReference  
     private Department department;  // Linked with Department Entity
 
     @CreationTimestamp
@@ -148,6 +150,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-  
-
+    
 }

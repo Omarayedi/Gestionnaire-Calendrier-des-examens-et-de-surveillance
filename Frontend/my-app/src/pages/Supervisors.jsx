@@ -9,6 +9,9 @@ function Supervisors() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showModifyModal, setShowModifyModal] = useState(false);
+  const [supervisors, setSupervisors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [newSupervisor, setNewSupervisor] = useState({
     name: '',
     email: '',
@@ -28,61 +31,94 @@ function Supervisors() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/departments');
-        setDepartments(response.data);
-      } catch (error) {
-        console.error('Error fetching departments:', error);
-      }
-    };
-
-    fetchDepartments();
+    fetchSupervisors();
   }, []);
 
-  const supervisors = [
-    {
-      id: 1,
-      name: 'Dr. Sarah Smith',
-      department: 'Mathematics',
-      email: 'sarah.smith@university.edu',
-      phone: '+1 (555) 123-4567',
-      location: 'Building A, Room 101',
-      availability: 'Available',
-      assignedExams: 3,
-      image: 'https://images.pexels.com/photos/3796217/pexels-photo-3796217.jpeg?auto=compress&cs=tinysrgb&w=150',
-    },
-    {
-      id: 2,
-      name: 'Prof. John Davis',
-      department: 'Physics',
-      email: 'john.davis@university.edu',
-      phone: '+1 (555) 234-5678',
-      location: 'Building B, Room 205',
-      availability: 'In Session',
-      assignedExams: 2,
-      image: 'https://images.pexels.com/photos/5905445/pexels-photo-5905445.jpeg?auto=compress&cs=tinysrgb&w=150',
-    },
-  ];
+  // Function to fetch supervisors based on UserDTO structure
+  const fetchSupervisors = async () => {
+    try {
+      setLoading(true);
+      // Fetch departments first
+      const deptResponse = await axios.get("http://localhost:8000/api/departments");
+      if (Array.isArray(deptResponse.data)) {
+        setDepartments(deptResponse.data);
+      } else {
+        console.error("Expected departments array but got:", deptResponse.data);
+        setDepartments([]);
+      }
+
+      // Fetch supervisors using the endpoint that returns UserDTO objects
+      const supervisorsResponse = await axios.get("http://localhost:8000/api/users/supervisors");
+      
+      if (Array.isArray(supervisorsResponse.data)) {
+        // Transform data from UserDTO format to the display format
+        const formattedSupervisors = supervisorsResponse.data.map(supervisor => ({
+          id: supervisor.userId,
+          name: supervisor.name,
+          department: supervisor.department ? supervisor.department.name : 'Not Assigned',
+          email: supervisor.email,
+          role: supervisor.role,
+          phone: supervisor.phone || '+1 (555) 000-0000',
+          location: supervisor.location || 'Not specified',
+          availability: supervisor.isActive ? 'Available' : 'Not Available',
+          assignedExams: supervisor.assignedExams || 0,
+          image: 'https://images.pexels.com/photos/3796217/pexels-photo-3796217.jpeg?auto=compress&cs=tinysrgb&w=150'
+        }));
+        setSupervisors(formattedSupervisors);
+      } else {
+        console.error("Expected supervisors array but got:", supervisorsResponse.data);
+        setError("Failed to load supervisors data");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Error loading data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const { name, email, password, department } = newSupervisor;
+    const confirmPassword = password; // Add a field if you want confirmation input
+  
+    if (!password || password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+  
+    try {
+      await axios.post("http://localhost:8000/api/auth/register", {
+        name,
+        email,
+        password,
+        role: "ENSEIGNANT", // Matching the role format in UserDTO
+        department,
+      });
+  
+      alert("Supervisor created successfully!");
+      setShowAddModal(false);
+      
+      // Refresh the supervisors list
+      fetchSupervisors();
+    } catch (error) {
+      alert("Registration failed. Try again.");
+      console.error("Error:", error.response?.data || error.message);
+    }
+  }; 
+
+  // Filter supervisors based on search term
+  const filteredSupervisors = supervisors.filter(
+    supervisor => supervisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 supervisor.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 supervisor.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const sidebarItems = [
     { icon: Home, label: 'Dashboard', path: '/' },
     { icon: Users, label: 'Supervisors', path: '/supervisors', active: true },
   ];
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:8000/api/auth/login', newSupervisor);
-      console.log('Supervisor added:', response.data);
-      alert('Supervisor added successfully!');
-      setShowAddModal(false);
-      setNewSupervisor({ name: '', email: '', password: '', department: '' });
-    } catch (error) {
-      console.error('Error adding supervisor:', error);
-      alert('Failed to add supervisor. Please try again.');
-    }
-  };
   
   const handleModifySupervisor = (supervisor) => {
     setModifySupervisor({
@@ -113,20 +149,22 @@ function Supervisors() {
         password: modifySupervisor.verifyPassword
       });
       
-      // If verification passes, update the account
-      const updateResponse = await axios.put(`http://localhost:8000/api/supervisors/${modifySupervisor.id}`, {
+      // If verification passes, update the account according to UserDTO structure
+      const updateResponse = await axios.put(`http://localhost:8000/api/users/${modifySupervisor.id}`, {
+        userId: modifySupervisor.id,
         name: modifySupervisor.name,
         email: modifySupervisor.email,
-        password: modifySupervisor.password || undefined, // Only update password if provided
-        department: modifySupervisor.department
+        role: "ENSEIGNANT", // Maintaining the role
+        department: modifySupervisor.department,
+        // Include password only if provided
+        ...(modifySupervisor.password && { password: modifySupervisor.password })
       });
       
-      console.log('Supervisor updated:', updateResponse.data);
       alert('Supervisor information updated successfully!');
       setShowModifyModal(false);
       
-      // Refresh the supervisors list or update the local state
-      // This is a placeholder - you'd need to implement this based on your API
+      // Refresh the supervisors list
+      fetchSupervisors();
       
     } catch (error) {
       console.error('Error updating supervisor:', error);
@@ -206,66 +244,83 @@ function Supervisors() {
                   <Plus className="h-5 w-5 mr-2" />
                   Add Supervisor
                 </button>
-                <button onClick={() => setShowModifyModal(true)} className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                  <Users className="h-5 w-5 mr-2" />
-                  Modify Supervisors
-                </button>
               </div>
             </div>
 
+            {/* Loading and Error States */}
+            {loading && (
+              <div className="flex justify-center items-center h-64">
+                <div className="text-lg text-gray-600">Loading supervisors...</div>
+              </div>
+            )}
+            
+            {error && !loading && (
+              <div className="bg-red-50 p-4 rounded-lg">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
+
             {/* Supervisors Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {supervisors.map((supervisor) => (
-                <div key={supervisor.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex items-center mb-4">
-                      <img
-                        src={supervisor.image}
-                        alt={supervisor.name}
-                        className="h-16 w-16 rounded-full object-cover"
-                      />
-                      <div className="ml-4">
-                        <h3 className="text-lg font-semibold text-gray-900">{supervisor.name}</h3>
-                        <p className="text-sm text-gray-600">{supervisor.department}</p>
+            {!loading && !error && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSupervisors.length > 0 ? (
+                  filteredSupervisors.map((supervisor) => (
+                    <div key={supervisor.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                      <div className="p-6">
+                        <div className="flex items-center mb-4">
+                          <img
+                            src={supervisor.image}
+                            alt={supervisor.name}
+                            className="h-16 w-16 rounded-full object-cover"
+                          />
+                          <div className="ml-4">
+                            <h3 className="text-lg font-semibold text-gray-900">{supervisor.name}</h3>
+                            <p className="text-sm text-gray-600">{supervisor.department}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center text-gray-600">
+                            <Mail className="h-5 w-5 mr-2" />
+                            <span className="text-sm">{supervisor.email}</span>
+                          </div>
+                          <div className="flex items-center text-gray-600">
+                            <Phone className="h-5 w-5 mr-2" />
+                            <span className="text-sm">{supervisor.phone}</span>
+                          </div>
+                          <div className="flex items-center text-gray-600">
+                            <MapPin className="h-5 w-5 mr-2" />
+                            <span className="text-sm">{supervisor.location}</span>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex justify-between items-center">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${supervisor.availability === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            {supervisor.availability}
+                          </span>
+                          <span className="text-sm text-gray-600">
+                            {supervisor.assignedExams} Exams Assigned
+                          </span>
+                        </div>
+                      </div>
+                      <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex space-x-2">
+                        <button className="w-1/2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                          View Schedule
+                        </button>
+                        <button 
+                          onClick={() => handleModifySupervisor(supervisor)}
+                          className="w-1/2 text-green-600 hover:text-green-800 text-sm font-medium"
+                        >
+                          Modify
+                        </button>
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center text-gray-600">
-                        <Mail className="h-5 w-5 mr-2" />
-                        <span className="text-sm">{supervisor.email}</span>
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <Phone className="h-5 w-5 mr-2" />
-                        <span className="text-sm">{supervisor.phone}</span>
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="h-5 w-5 mr-2" />
-                        <span className="text-sm">{supervisor.location}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex justify-between items-center">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${supervisor.availability === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {supervisor.availability}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {supervisor.assignedExams} Exams Assigned
-                      </span>
-                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <p className="text-gray-500">No supervisors found matching your search criteria.</p>
                   </div>
-                  <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex space-x-2">
-                    <button className="w-1/2 text-blue-600 hover:text-blue-800 text-sm font-medium">
-                      View Schedule
-                    </button>
-                    <button 
-                      onClick={() => handleModifySupervisor(supervisor)}
-                      className="w-1/2 text-green-600 hover:text-green-800 text-sm font-medium"
-                    >
-                      Modify
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </main>
       </div>
@@ -319,9 +374,9 @@ function Supervisors() {
                   required
                 >
                   <option value="">Select Department</option>
-                  {departments.map((dept, index) => (
-                    <option key={index} value={dept}>
-                      {dept}
+                  {departments.map((dept) => (
+                    <option key={dept.departmentId} value={dept.name}>
+                      {dept.name}
                     </option>
                   ))}
                 </select>
@@ -367,125 +422,125 @@ function Supervisors() {
         </div>
       )}
       
-        {/* Modify Supervisor Modal */}
+      {/* Modify Supervisor Modal */}
       {showModifyModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-screen">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Modify Supervisor Account</h2>
-                <button onClick={() => setShowModifyModal(false)} className="text-gray-400 hover:text-gray-600">
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-              
-              <div className="overflow-y-auto max-h-96 pr-2" style={{ scrollbarWidth: 'thin' }}>
-                <form onSubmit={handleModifySubmit} className="space-y-4">
-                  {/* Verification Section */}
-                  <div className="p-3 bg-yellow-50 rounded-lg mb-3">
-                    <h3 className="text-sm font-semibold text-yellow-800 mb-1">Account Verification</h3>
-                    <p className="text-xs text-yellow-700 mb-3">Please enter your current password to verify your identity</p>
-                    <div className="mb-3">
-                      <label htmlFor="originalEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                        Current Email
-                      </label>
-                      <input
-                        type="email"
-                        id="originalEmail"
-                        value={modifySupervisor.originalEmail}
-                        disabled
-                        className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="verifyPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                        Current Password
-                      </label>
-                      <input
-                        type="password"
-                        id="verifyPassword"
-                        value={modifySupervisor.verifyPassword}
-                        onChange={(e) => setModifySupervisor({ ...modifySupervisor, verifyPassword: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="border-t border-gray-200 pt-4">
-                    <h3 className="text-sm font-semibold text-gray-800 mb-3">New Information</h3>
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="modify-name" className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="modify-name"
-                      value={modifySupervisor.name}
-                      onChange={(e) => setModifySupervisor({ ...modifySupervisor, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="modify-email" className="block text-sm font-medium text-gray-700 mb-1">
-                      New Email
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-screen">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Modify Supervisor Account</h2>
+              <button onClick={() => setShowModifyModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto max-h-96 pr-2" style={{ scrollbarWidth: 'thin' }}>
+              <form onSubmit={handleModifySubmit} className="space-y-4">
+                {/* Verification Section */}
+                <div className="p-3 bg-yellow-50 rounded-lg mb-3">
+                  <h3 className="text-sm font-semibold text-yellow-800 mb-1">Account Verification</h3>
+                  <p className="text-xs text-yellow-700 mb-3">Please enter your current password to verify your identity</p>
+                  <div className="mb-3">
+                    <label htmlFor="originalEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                      Current Email
                     </label>
                     <input
                       type="email"
-                      id="modify-email"
-                      value={modifySupervisor.email}
-                      onChange={(e) => setModifySupervisor({ ...modifySupervisor, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
+                      id="originalEmail"
+                      value={modifySupervisor.originalEmail}
+                      disabled
+                      className="w-full px-3 py-2 border border-gray-300 bg-gray-100 rounded-lg"
                     />
                   </div>
                   <div>
-                    <label htmlFor="modify-department" className="block text-sm font-medium text-gray-700 mb-1">
-                      Department
-                    </label>
-                    <select
-                      id="modify-department"
-                      value={modifySupervisor.department}
-                      onChange={(e) => setModifySupervisor({ ...modifySupervisor, department: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    >
-                      <option value="">Select Department</option>
-                      {departments.map((dept, index) => (
-                        <option key={index} value={dept}>
-                          {dept}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="modify-password" className="block text-sm font-medium text-gray-700 mb-1">
-                      New Password
+                    <label htmlFor="verifyPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                      Current Password
                     </label>
                     <input
                       type="password"
-                      id="modify-password"
-                      value={modifySupervisor.password}
-                      onChange={(e) => setModifySupervisor({ ...modifySupervisor, password: e.target.value })}
+                      id="verifyPassword"
+                      value={modifySupervisor.verifyPassword}
+                      onChange={(e) => setModifySupervisor({ ...modifySupervisor, verifyPassword: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      required
                     />
-                    <p className="text-xs text-gray-500 mt-1">Leave empty if you don't want to change the password</p>
                   </div>
-                  <div className="flex justify-end space-x-4 pt-2">
-                    <button type="button" onClick={() => setShowModifyModal(false)} className="px-3 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                      Cancel
-                    </button>
-                    <button type="submit" className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                      Update
-                    </button>
-                  </div>
-                </form>
-              </div>
+                </div>
+                
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="text-sm font-semibold text-gray-800 mb-3">New Information</h3>
+                </div>
+                
+                <div>
+                  <label htmlFor="modify-name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="modify-name"
+                    value={modifySupervisor.name}
+                    onChange={(e) => setModifySupervisor({ ...modifySupervisor, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="modify-email" className="block text-sm font-medium text-gray-700 mb-1">
+                    New Email
+                  </label>
+                  <input
+                    type="email"
+                    id="modify-email"
+                    value={modifySupervisor.email}
+                    onChange={(e) => setModifySupervisor({ ...modifySupervisor, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="modify-department" className="block text-sm font-medium text-gray-700 mb-1">
+                    Department
+                  </label>
+                  <select
+                    id="modify-department"
+                    value={modifySupervisor.department}
+                    onChange={(e) => setModifySupervisor({ ...modifySupervisor, department: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.departmentId} value={dept.name}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="modify-password" className="block text-sm font-medium text-gray-700 mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="modify-password"
+                    value={modifySupervisor.password}
+                    onChange={(e) => setModifySupervisor({ ...modifySupervisor, password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Leave blank to keep current password"
+                  />
+                </div>
+                <div className="flex justify-end space-x-4 pt-4">
+                  <button type="button" onClick={() => setShowModifyModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    Update Supervisor
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }
