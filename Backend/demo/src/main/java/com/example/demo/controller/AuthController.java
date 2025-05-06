@@ -35,6 +35,7 @@ public class AuthController {
         String password = (String) userMap.get("password");
         String roleStr = (String) userMap.get("role"); // Get role as a string
         String departmentName = (String) userMap.get("department");
+        String section = (String) userMap.get("section");
     
         // Convert the role string to the Role enum
         Role role;
@@ -43,9 +44,25 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid role: " + roleStr);
         }
+        if(section == null)
+        {
+            return userService.registerUser(name, email, password, role, departmentName, "---");
+
+        }
     
         // Call the service method
-        return userService.registerUser(name, email, password, role, departmentName, "hhh");
+        return userService.registerUser(name, email, password, role, departmentName, section);
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<String> verifyPassword(@RequestBody LoginRequest request) {
+        Optional<User> user = userService.getUserByEmail(request.getEmail());
+
+        if (user.isPresent() && new BCryptPasswordEncoder().matches(request.getPassword(), user.get().getPassword())) {
+            return ResponseEntity.ok("Password verified");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
     }
 
     @PostMapping("/login")

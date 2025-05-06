@@ -28,6 +28,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findByRole(Role directeur);
 
     // Add this method to your UserRepository interface
-    List<UserDTO> findAllByRole(Role role);
+    List<User> findAllByRole(Role role);
 
 }

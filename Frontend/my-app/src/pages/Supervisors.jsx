@@ -1,7 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Plus, Mail, Phone, MapPin, Bell, Menu, X, Home } from 'lucide-react';
+import {
+  Users,
+  Search,
+  Plus,
+  Mail,
+  Phone,
+  MapPin,
+  Bell,
+  Menu,
+  X,
+  Home,
+  Calendar,
+  User,
+  BookOpen,
+  Settings,
+  FileText,
+  ClipboardList
+} from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode
 
 function Supervisors() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,48 +53,55 @@ function Supervisors() {
     fetchSupervisors();
   }, []);
 
-  // Function to fetch supervisors based on UserDTO structure
-  const fetchSupervisors = async () => {
-    try {
-      setLoading(true);
-      // Fetch departments first
-      const deptResponse = await axios.get("http://localhost:8000/api/departments");
-      if (Array.isArray(deptResponse.data)) {
-        setDepartments(deptResponse.data);
-      } else {
-        console.error("Expected departments array but got:", deptResponse.data);
-        setDepartments([]);
+    // Function to fetch supervisors based on UserDTO structure
+    const fetchSupervisors = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+    
+        // Set up config with Authorization header
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+    
+        // Fetch departments with token
+        const deptResponse = await axios.get("http://localhost:8000/api/departments", config);
+        if (Array.isArray(deptResponse.data)) {
+          setDepartments(deptResponse.data);
+        } else {
+          console.error("Expected departments array but got:", deptResponse.data);
+          setDepartments([]);
+        }
+    
+        // Fetch supervisors using token
+        const supervisorsResponse = await axios.get("http://localhost:8000/api/users/supervisors", config);
+        if (Array.isArray(supervisorsResponse.data)) {
+          const formattedSupervisors = supervisorsResponse.data.map(supervisor => ({
+            id: supervisor.userId,
+            name: supervisor.name,
+            department: supervisor.department ? supervisor.department.name : 'Not Assigned',
+            email: supervisor.email,
+            role: supervisor.role,
+            phone: supervisor.phone || '+1 (555) 000-0000',
+            location: supervisor.location || 'Not specified',
+            availability: supervisor.isActive ? 'Available' : 'Not Available',
+            assignedExams: supervisor.assignedExams || 0,
+            image: 'https://images.pexels.com/photos/3796217/pexels-photo-3796217.jpeg?auto=compress&cs=tinysrgb&w=150'
+          }));
+          setSupervisors(formattedSupervisors);
+        } else {
+          console.error("Expected supervisors array but got:", supervisorsResponse.data);
+          setError("Failed to load supervisors data");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Error loading data. Please try again later.");
+      } finally {
+        setLoading(false);
       }
-
-      // Fetch supervisors using the endpoint that returns UserDTO objects
-      const supervisorsResponse = await axios.get("http://localhost:8000/api/users/supervisors");
-      
-      if (Array.isArray(supervisorsResponse.data)) {
-        // Transform data from UserDTO format to the display format
-        const formattedSupervisors = supervisorsResponse.data.map(supervisor => ({
-          id: supervisor.userId,
-          name: supervisor.name,
-          department: supervisor.department ? supervisor.department.name : 'Not Assigned',
-          email: supervisor.email,
-          role: supervisor.role,
-          phone: supervisor.phone || '+1 (555) 000-0000',
-          location: supervisor.location || 'Not specified',
-          availability: supervisor.isActive ? 'Available' : 'Not Available',
-          assignedExams: supervisor.assignedExams || 0,
-          image: 'https://images.pexels.com/photos/3796217/pexels-photo-3796217.jpeg?auto=compress&cs=tinysrgb&w=150'
-        }));
-        setSupervisors(formattedSupervisors);
-      } else {
-        console.error("Expected supervisors array but got:", supervisorsResponse.data);
-        setError("Failed to load supervisors data");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setError("Error loading data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -110,14 +136,22 @@ function Supervisors() {
 
   // Filter supervisors based on search term
   const filteredSupervisors = supervisors.filter(
-    supervisor => supervisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                 supervisor.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                 supervisor.email.toLowerCase().includes(searchTerm.toLowerCase())
+    supervisor =>
+      (supervisor.name && supervisor.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (supervisor.department && supervisor.department.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (supervisor.email && supervisor.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const sidebarItems = [
-    { icon: Home, label: 'Dashboard', path: '/' },
-    { icon: Users, label: 'Supervisors', path: '/supervisors', active: true },
+    { icon: Home, label: 'Dashboard', path: '/dashboard/admin/' },
+    { icon: BookOpen, label: 'Exams', path: '/dashboard/admin/exams' },
+    { icon: Calendar, label: 'Schedule', path: '/schedule' },
+    { icon: Users, label: 'Supervisors', path: '/dashboard/admin/supervisors',active: true },
+    { icon: Users, label: 'Students', path: '/dashboard/admin/students' },
+    { icon: MapPin, label: 'Rooms', path: '/dashboard/admin/rooms' },
+    { icon: FileText, label: 'Reports', path: '/reports' },
+    { icon: ClipboardList, label: 'Validations', path: '/validations' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
   ];
   
   const handleModifySupervisor = (supervisor) => {
@@ -135,37 +169,49 @@ function Supervisors() {
   
   const handleModifySubmit = async (e) => {
     e.preventDefault();
-    
-    // Verify password before allowing modification
+  
     if (!modifySupervisor.verifyPassword) {
       alert('Please enter your current password to verify');
       return;
     }
-    
+  
     try {
-      // Verify credentials first
-      const verifyResponse = await axios.post('http://localhost:8000/api/auth/verify', {
-        email: modifySupervisor.originalEmail,
-        password: modifySupervisor.verifyPassword
-      });
-      
-      // If verification passes, update the account according to UserDTO structure
-      const updateResponse = await axios.put(`http://localhost:8000/api/users/${modifySupervisor.id}`, {
-        userId: modifySupervisor.id,
-        name: modifySupervisor.name,
-        email: modifySupervisor.email,
-        role: "ENSEIGNANT", // Maintaining the role
-        department: modifySupervisor.department,
-        // Include password only if provided
-        ...(modifySupervisor.password && { password: modifySupervisor.password })
-      });
-      
+      const token = localStorage.getItem('token');
+  
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      };
+  
+      // Verify credentials
+      const verifyResponse = await axios.post(
+        'http://localhost:8000/api/auth/verify',
+        {
+          email: modifySupervisor.originalEmail,
+          password: modifySupervisor.verifyPassword
+        },
+        config
+      );
+  
+      // If verification passes, update the supervisor
+      const updateResponse = await axios.put(
+        `http://localhost:8000/api/users/${modifySupervisor.id}`,
+        {
+          userId: modifySupervisor.id,
+          name: modifySupervisor.name,
+          email: modifySupervisor.email,
+          role: "ENSEIGNANT",
+          department: modifySupervisor.department,
+          ...(modifySupervisor.password && { password: modifySupervisor.password })
+        },
+        config
+      );
+  
       alert('Supervisor information updated successfully!');
       setShowModifyModal(false);
-      
-      // Refresh the supervisors list
       fetchSupervisors();
-      
+  
     } catch (error) {
       console.error('Error updating supervisor:', error);
       if (error.response?.status === 401) {
@@ -175,6 +221,7 @@ function Supervisors() {
       }
     }
   };
+  
 
   return (
     <div className="flex h-screen bg-gray-100">

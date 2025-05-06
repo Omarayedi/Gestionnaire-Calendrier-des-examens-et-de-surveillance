@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
@@ -38,8 +38,8 @@ public class User implements UserDetails {
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id") 
-    @JsonBackReference  
+    @JoinColumn(name = "department_id")    
+    @JsonIgnore
     private Department department;  // Linked with Department Entity
 
     @CreationTimestamp
@@ -100,6 +100,10 @@ public class User implements UserDetails {
 
     public Department getDepartment() {
         return department;
+    }
+
+    public String getDepartmentname() {
+        return (this.department != null) ? this.department.getName() : "No Department";
     }
 
     public void setDepartment(Department department) {

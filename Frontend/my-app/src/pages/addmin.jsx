@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Users, BookOpen, MapPin, Bell, Mail, Menu, X, Home, Settings, FileText, ClipboardList } from 'lucide-react';
+import { Calendar, Users,User, BookOpen, MapPin, Bell, Mail, Menu, X, Home, Settings, FileText, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard() {
@@ -44,10 +44,12 @@ function AdminDashboard() {
   ];
 
   const sidebarItems = [
-    { icon: Home, label: 'Dashboard', path: '/', active: true },
+    { icon: Home, label: 'Dashboard', path: '/dashboard/admin/', active: true },
+    { icon: BookOpen, label: 'Exams', path: '/dashboard/admin/exams' },
     { icon: Calendar, label: 'Schedule', path: '/schedule' },
     { icon: Users, label: 'Supervisors', path: '/dashboard/admin/supervisors' },
-    { icon: MapPin, label: 'Rooms', path: '/rooms' },
+    { icon: Users, label: 'Students', path: '/dashboard/admin/students' },
+    { icon: MapPin, label: 'Rooms', path: '/dashboard/admin/rooms' },
     { icon: FileText, label: 'Reports', path: '/reports' },
     { icon: ClipboardList, label: 'Validations', path: '/validations' },
     { icon: Settings, label: 'Settings', path: '/settings' },
@@ -56,38 +58,73 @@ function AdminDashboard() {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside 
-        className={`${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
-      >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">Exam Admin</h2>
+<aside
+  className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform transition-all duration-300 ease-in-out ${
+    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+  } lg:translate-x-0 lg:static lg:inset-0 border-r border-gray-200`}
+  aria-hidden={!isSidebarOpen}
+>
+  {/* Header */}
+  <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+    <div className="flex items-center">
+      <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center mr-3">
+        <ClipboardList className="w-5 h-5 text-white" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-800">Exam Admin</h2>
+    </div>
+    <button
+      onClick={() => setSidebarOpen(false)}
+      className="p-2 rounded-md lg:hidden hover:bg-gray-100 transition-colors"
+      aria-label="Close sidebar"
+    >
+      <X className="w-5 h-5 text-gray-600" />
+    </button>
+  </div>
+
+  {/* Navigation */}
+  <nav className="mt-6 px-4" aria-label="Main Navigation">
+    <ul className="space-y-1">
+      {sidebarItems.map((item, index) => (
+        <li key={index}>
           <button
-            onClick={() => setSidebarOpen(false)}
-            className="p-2 rounded-md lg:hidden hover:bg-gray-100"
+            onClick={() => navigate(item.path)}
+            className={`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 ${
+              item.active
+                ? "bg-blue-50 text-blue-700 font-medium shadow-sm"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+            aria-current={item.active ? "page" : undefined}
           >
-            <X className="w-6 h-6 text-gray-600" />
+            <item.icon className={`w-5 h-5 mr-3 ${item.active ? "text-blue-600" : "text-gray-500"}`} />
+            <span className={item.active ? "font-medium" : ""}>{item.label}</span>
+            {item.active && (
+              <div className="ml-auto bg-blue-600 w-1.5 h-5 rounded-full" />
+            )}
           </button>
-        </div>
-        <nav className="mt-6 px-4">
-          <ul className="space-y-2">
-            {sidebarItems.map((item, index) => (
-              <li key={index}>
-                <button
-                  onClick={() => navigate(item.path)}
-                  className={`flex items-center w-full px-4 py-3 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors ${
-                    item.active ? 'bg-blue-50 text-blue-700' : ''
-                  }`}
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </aside>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  {/* Footer */}
+  <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+    <div className="flex items-center space-x-3 px-2">
+      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+        <User className="w-4 h-4 text-gray-600" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-900 truncate">Admin User</p>
+        <p className="text-xs text-gray-500 truncate">admin@example.com</p>
+      </div>
+      <button 
+        className="p-1.5 rounded-full hover:bg-gray-100"
+        aria-label="User settings"
+      >
+        <Settings className="w-4 h-4 text-gray-500" />
+      </button>
+    </div>
+  </div>
+</aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">

@@ -7,9 +7,9 @@ public class UserDTO {
     private String name;
     private String email;
     private Role role;   
-    private DepartmentDTO department;
+    private String department;
 
-    public UserDTO(Long userId,String name,String email,Role role,DepartmentDTO department)
+    public UserDTO(Long userId,String name,String email,Role role,String department)
     {
         this.userId=userId;
         this.name=name;
@@ -50,11 +50,11 @@ public class UserDTO {
         this.role = role;
     }
 
-    public DepartmentDTO getDepartment() {
+    public String getDepartment() {
         return department;
     }
 
-    public void setDepartment(DepartmentDTO department) {
+    public void setDepartment(String department) {
         this.department = department;
     }
 }

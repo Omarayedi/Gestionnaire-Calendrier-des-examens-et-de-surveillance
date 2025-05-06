@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ExamDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Role;
@@ -13,21 +14,42 @@ import lombok.AllArgsConstructor;
 import com.example.demo.repository.DepartmentRepository;
 import com.example.demo.repository.StudentRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class UserService {
-
+    @Autowired
     private final UserRepository userRepository;//3lech hethom final
+    @Autowired
     private final StudentRepository studentRepository;//mochkla el final lezm exist 
+    @Autowired
     private final DepartmentRepository departmentRepository;
+    @Autowired
     private final PasswordEncoder passwordEncoder;
+
+
+    public List<UserDTO> getAllSupervisor() {
+        return userRepository.findAllByRole(Role.ENSEIGNANT)
+            .stream()
+            .map(user -> new UserDTO(user.getUserId(),user.getName(),user.getEmail(),user.getRole(),user.getDepartmentname()))
+            .collect(Collectors.toList());
+    }
+
+    public List<UserDTO> getAllStudents() {
+        return userRepository.findAllByRole(Role.ETUDIANT)
+            .stream()
+            .map(user -> new UserDTO(user.getUserId(),user.getName(),user.getEmail(),user.getRole(),user.getDepartmentname()))
+            .collect(Collectors.toList());
+    }
+
 
     @Transactional
     public ResponseEntity<String> registerUser(String name, String email, String password, Role role, String department, String section) {
@@ -104,9 +126,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<UserDTO> getAllSupervisors() {
-        return userRepository.findAllByRole(Role.ENSEIGNANT);
-    }
     
 
     public User updateUser(Integer id, User userDetails) {

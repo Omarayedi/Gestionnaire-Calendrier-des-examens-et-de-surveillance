@@ -10,19 +10,26 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
     private final UserService userService;
     public UserController(UserService userService) {
         this.userService = userService;
     }
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.getAllSupervisor();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
     
     @GetMapping("/supervisors")
     public ResponseEntity<List<UserDTO>> getAllSupervisors() {
-        List<UserDTO> supervisors = userService.getAllSupervisors();
+        List<UserDTO> supervisors = userService.getAllSupervisor();
+        return new ResponseEntity<>(supervisors, HttpStatus.OK);
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<List<UserDTO>> getAllStudents() {
+        List<UserDTO> supervisors = userService.getAllStudents();
         return new ResponseEntity<>(supervisors, HttpStatus.OK);
     }
     

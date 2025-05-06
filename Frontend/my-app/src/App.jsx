@@ -5,6 +5,9 @@ import AdminDashboard from "./pages/addmin";
 import DirecteurDashboard from "./pages/direcetud";
 import ChefDashboard from "./pages/chefdep";
 import Supervisors from "./pages/Supervisors"
+import Students from "./pages/Students"
+import AddExam from './pages/Exam';
+import RoomsPage from './pages/Rooms';
 
 export default function App() {
   return (
@@ -15,6 +18,9 @@ export default function App() {
       <Route path="/dashboard/directeur" element={<DirecteurDashboard />} />
       <Route path="/dashboard/chef" element={<ChefDashboard />} />
       <Route path="/dashboard/admin/supervisors" element={<Supervisors />} />
+      <Route path="/dashboard/admin/students" element={<Students />} />
+      <Route path="/dashboard/admin/exams" element={<AddExam />} />
+      <Route path="/dashboard/admin/rooms" element={<RoomsPage />} />
 
     </Routes>
   );
