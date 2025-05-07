@@ -29,8 +29,8 @@ public class UserController {
 
     @GetMapping("/students")
     public ResponseEntity<List<UserDTO>> getAllStudents() {
-        List<UserDTO> supervisors = userService.getAllStudents();
-        return new ResponseEntity<>(supervisors, HttpStatus.OK);
+        List<UserDTO> students = userService.getAllStudents();
+        return new ResponseEntity<>(students, HttpStatus.OK);
     }
     
     @GetMapping("/{id}")

@@ -83,7 +83,7 @@ function Students() {
         const formattedStudents = studentsResponse.data.map(student => ({
           id: student.userId,
           name: student.name,
-          department: student.department ? student.department.name : 'Not Assigned',
+          department: student.department,
           email: student.email,
           role: student.role,
           phone: student.phone || '+1 (555) 000-0000',
@@ -144,7 +144,8 @@ function Students() {
     student =>
       (student.name && student.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (student.department && student.department.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()))
+      (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.section && student.section.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const sidebarItems = [
@@ -344,7 +345,7 @@ function Students() {
                           </div>
                           <div className="flex items-center text-gray-600">
                             <BookOpen className="h-4 w-4 mr-2 text-gray-500" />
-                            <span className="text-sm">Semester: {student.currentSemester}</span>
+                            <span className="text-sm">Department: {student.currentSemester}</span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <Users className="h-4 w-4 mr-2 text-gray-500" />
@@ -458,14 +459,34 @@ function Students() {
                 <label htmlFor="section" className="block text-sm font-medium text-gray-700 mb-2">
                   Section
                 </label>
-                <input
-                  type="text"
+                <select
                   id="section"
                   value={newStudent.section}
                   onChange={(e) => setNewStudent({ ...newStudent, section: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-                  placeholder="e.g. A, B, C, etc."
-                />
+                >
+                  <option value="" disabled>Select a section</option>
+                  <option value="CPI1">CPI1</option>
+                  <option value="CPI2">CPI2</option>
+                  <option value="ING INFO 1">ING INFO 1</option>
+                  <option value="ING INFO 2">ING INFO 2</option>
+                  <option value="ING INFO 3">ING INFO 3</option>
+                  <option value="L1 INFO">L1 INFO</option>
+                  <option value="L2 INFO">L2 INFO</option>
+                  <option value="L3 INFO">L3 INFO</option>
+                  <option value="L1 MATH">L1 MATH</option>
+                  <option value="L2 MATH">L2 MATH</option>
+                  <option value="L3 MATH">L3 MATH</option>
+                  <option value="L1 TIC">L1 TIC</option>
+                  <option value="L2 TIC">L2 TIC</option>
+                  <option value="L3 TIC">L3 TIC</option>
+                  <option value="L1 EEA">L1 EEA</option>
+                  <option value="L2 EEA">L2 EEA</option>
+                  <option value="L3 EEA">L3 EEA</option>
+                  <option value="ING ELEC 1">ING ELEC 1</option>
+                  <option value="ING ELEC 2">ING ELEC 2</option>
+                  <option value="ING ELEC 3">ING ELEC 3</option>
+                </select>
               </div>
               <div className="flex justify-end space-x-4 pt-4">
                 <button type="button" onClick={() => setShowAddModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">

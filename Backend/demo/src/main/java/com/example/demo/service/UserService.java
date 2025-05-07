@@ -44,9 +44,10 @@ public class UserService {
     }
 
     public List<UserDTO> getAllStudents() {
+
         return userRepository.findAllByRole(Role.ETUDIANT)
             .stream()
-            .map(user -> new UserDTO(user.getUserId(),user.getName(),user.getEmail(),user.getRole(),user.getDepartmentname()))
+            .map(user -> new UserDTO(user.getUserId(),user.getName(),user.getEmail(),user.getRole(),user.getDepartmentname(),studentRepository.findByUser(user).map(Student::getProgram).orElse(null)))
             .collect(Collectors.toList());
     }
 

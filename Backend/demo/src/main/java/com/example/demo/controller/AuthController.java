@@ -73,10 +73,10 @@ public class AuthController {
             String token = jwtUtil.generateToken((UserDetails) user.get());
             
             // Create a structured response
-            LoginResponse loginResponse = new LoginResponse(token, user.get().getRole().toString(), user.get().getName());
+            LoginResponse loginResponse = new LoginResponse(token, user.get().getRole().toString(), user.get().getName(),user.get().getDepartmentname());
             return ResponseEntity.ok(loginResponse);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, null, "Invalid credentials!"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(null, null, "Invalid credentials!","null"));
         }
     }
 

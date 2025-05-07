@@ -8,6 +8,7 @@ public class UserDTO {
     private String email;
     private Role role;   
     private String department;
+    private String section;
 
     public UserDTO(Long userId,String name,String email,Role role,String department)
     {
@@ -17,6 +18,17 @@ public class UserDTO {
         this.role=role;
         this.department=department;
     }
+
+    public UserDTO(Long userId,String name,String email,Role role,String department,String section)
+    {
+        this.userId=userId;
+        this.name=name;
+        this.email=email;
+        this.role=role;
+        this.department=department;
+        this.section = section;
+    }
+
 
     public Long getUserId() {
         return userId;
@@ -32,6 +44,14 @@ public class UserDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
     }
 
     public String getEmail() {

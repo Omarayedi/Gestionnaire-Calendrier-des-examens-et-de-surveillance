@@ -81,7 +81,7 @@ function Supervisors() {
           const formattedSupervisors = supervisorsResponse.data.map(supervisor => ({
             id: supervisor.userId,
             name: supervisor.name,
-            department: supervisor.department ? supervisor.department.name : 'Not Assigned',
+            department: supervisor.department,
             email: supervisor.email,
             role: supervisor.role,
             phone: supervisor.phone || '+1 (555) 000-0000',
